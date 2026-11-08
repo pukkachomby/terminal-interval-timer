@@ -27,6 +27,10 @@ def draw_progress_bar(current, total, width=30):
     return f"[{bar}]"
 
 def run_timer(duration_seconds, label="Interval"):
+    # If duration is 0, skip running the timer phase entirely
+    if duration_seconds <= 0:
+        return
+
     total = duration_seconds
     remaining = total
     paused = False
@@ -67,6 +71,16 @@ def run_timer(duration_seconds, label="Interval"):
     beep()
 
 def main():
+    # Determine work duration from command line argument or default to 150 seconds
+    work_seconds = 150
+    if len(sys.argv) > 1:
+        try:
+            minutes = float(sys.argv[1])
+            work_seconds = int(minutes * 60)
+        except ValueError:
+            print(f"Invalid duration argument: {sys.argv[1]}. Using default 150 seconds.")
+            time.sleep(1)
+
     # Make terminal read input instantly without requiring Enter key
     import termios
     import tty
@@ -76,16 +90,14 @@ def main():
     try:
         tty.setcbreak(fd)
 
-        # Example workout structure: Prep, Work, Rest
         print("Starting timer sequence...")
         time.sleep(1)
 
         run_timer(5, label="Preparation")
 
-        # Run a sample 3-round interval session (e.g., 45s work, 15s rest)
         rounds = 10
         for r in range(1, rounds + 1):
-            run_timer(150, label=f"Work Round {r}/{rounds}")
+            run_timer(work_seconds, label=f"Work Round {r}/{rounds}")
             if r < rounds:
                 run_timer(0, label=f"Rest Round {r}")
 
